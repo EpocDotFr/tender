@@ -1,0 +1,26 @@
+[project]
+name = "tender"
+version = "0.1.0"
+requires-python = ">= 3.14"
+authors = [
+  {name = "Maxime 'Epoc' Gross", email = "contact.nospam@epoc.nospam.fr"},
+]
+description = "A Gemini low-level client, implemented in Pytho"
+readme = "README.md"
+keywords = ["asyncio", "gemini-protocol", "client", "dependency-free"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Internet",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15"
+]
+
+[project.urls]
+Documentation = "https://github.com/EpocDotFr/tender?tab=readme-ov-file#usage"
+Repository = "https://github.com/EpocDotFr/tender"
+Issues = "https://github.com/EpocDotFr/tender/issues"
+Changelog = "https://github.com/EpocDotFr/tender/releases"
