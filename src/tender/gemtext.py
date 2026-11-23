@@ -46,7 +46,7 @@ class Gemtext:
         return self
 
     @staticmethod
-    async def create(body: bytes, mime_type: str) -> Optional[Gemtext]:
+    def create(body: bytes, mime_type: str) -> Optional[Gemtext]:
         if not body:
             return None
 

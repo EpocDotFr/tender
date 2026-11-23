@@ -24,15 +24,15 @@ class Response:
 
     @staticmethod
     async def create(reader: asyncio.StreamReader) -> Response:
-        status = await reader.readuntil(b' ')
+        status = (await reader.readuntil(b' '))[:-1]
 
         try:
-            if len(status > 2):
+            if len(status) > 2:
                 raise ValueError
 
-            status = int(status[:-1].decode())
+            status = int(status.decode())
         except ValueError:
-            raise ValueError(f'Malformed status: {status}')
+            raise ValueError(f'Malformed status: {status}') from None
 
         if Response.is_input(status):
             prompt = await reader.readuntil(b'\r\n')

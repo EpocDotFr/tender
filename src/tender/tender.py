@@ -1,21 +1,27 @@
 from tender.response import Response
 from urllib.parse import urlsplit
-from typing import Optional
 import logging
 import asyncio
+import ssl
+
+ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
+ssl_context.load_default_certs(ssl.Purpose.CLIENT_AUTH)
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
 
 MAX_URI_LENGTH = 1024
 
 logger = logging.getLogger('tender')
 
 
-async def request(url: str) -> Optional[Response]:
+async def request(url: str) -> Response:
     # TODO Check length with MAX_URI_LENGTH
 
     try:
         url = urlsplit(url)
     except ValueError:
-        raise ValueError('Invalid URI')
+        raise ValueError('Invalid URI') from None
 
     if url.username or url.password:
         raise ValueError('URI with userinfo')
@@ -24,25 +30,16 @@ async def request(url: str) -> Optional[Response]:
     elif url.scheme != 'gemini':
         raise ValueError(f'Invalid scheme: {url.scheme or "(none)"}')
 
-    reader, writer = await asyncio.open_connection(url.hostname, url.port or 1965)
+    reader, writer = await asyncio.open_connection(url.hostname, url.port or 1965, ssl=ssl_context)
 
     logger.debug(url)
 
-    try:
-        writer.write(f'{url}\r\n'.encode())
+    writer.write(f'{url}\r\n'.encode())
 
-        await writer.drain()
-    except (BrokenPipeError, ConnectionResetError):
-        pass
-    except Exception:
-        logger.exception('Error writing request')
+    await writer.drain()
 
     try:
         return await Response.create(reader)
-    except (BrokenPipeError, ConnectionResetError):
-        pass
-    except Exception:
-        logger.exception('Error reading response')
     finally:
         writer.close()
 
@@ -50,5 +47,3 @@ async def request(url: str) -> Optional[Response]:
             await writer.wait_closed()
         except Exception:
             pass
-
-    return None
