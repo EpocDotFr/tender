@@ -1,6 +1,6 @@
 # Tender
 
-A [Gemini](https://geminiprotocol.net/) low-level client, implemented in Python.
+A [Gemini](https://geminiprotocol.net/) (the protocol) low-level client, implemented in Python.
 
 [PyPI](https://pypi.org/project/tender/) - [Documentation](https://github.com/EpocDotFr/tender?tab=readme-ov-file#usage) - [Source code](https://github.com/EpocDotFr/tender) - [Issue tracker](https://github.com/EpocDotFr/tender/issues) - [Changelog](https://github.com/EpocDotFr/tender/releases)
 

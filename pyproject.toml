@@ -5,7 +5,7 @@ requires-python = ">= 3.14"
 authors = [
   {name = "Maxime 'Epoc' Gross", email = "contact.nospam@epoc.nospam.fr"},
 ]
-description = "A Gemini low-level client, implemented in Pytho"
+description = "A Gemini (the protocol) low-level client, implemented in Python"
 readme = "README.md"
 keywords = ["asyncio", "gemini-protocol", "client", "dependency-free"]
 classifiers = [
