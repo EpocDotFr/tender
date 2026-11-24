@@ -1,4 +1,7 @@
 from typing import NamedTuple, Optional, List, Union
+import re
+
+text_regex = re.compile(r'=>\s+(?P<url>\S+)(?:\s+(?P<label>.+))?')
 
 
 class Text(NamedTuple):
@@ -52,17 +55,17 @@ class Gemtext:
 
     def heading_1(self, text: str) -> None:
         self.lines.append(
-            Heading1(label)
+            Heading1(text)
         )
 
     def heading_2(self, text: str) -> None:
         self.lines.append(
-            Heading2(label)
+            Heading2(text)
         )
 
     def heading_3(self, text: str) -> None:
         self.lines.append(
-            Heading3(label)
+            Heading3(text)
         )
 
     def list_item(self, text: str) -> None:
@@ -97,23 +100,40 @@ class Gemtext:
 
         for line in body.splitlines():
             if line.startswith('=>'):
-                pass # TODO
+                match = text_regex.fullmatch(line)
+
+                if match:
+                    match = match.groupdict()
+
+                    gemtext.link(match.get('url'), match.get('label')) # type: ignore[assignment]
+                else:
+                    raise ValueError(f'Malformed link line: {line}')
             elif line.startswith('###'):
-                pass # TODO
+                gemtext.heading_3(
+                    line.removeprefix('###').lstrip()
+                )
             elif line.startswith('##'):
-                pass # TODO
+                gemtext.heading_2(
+                    line.removeprefix('##').lstrip()
+                )
             elif line.startswith('#'):
-                pass # TODO
-            elif line.startswith('* '):
-                pass # TODO
-            elif line.startswith('> '):
-                pass # TODO
+                gemtext.heading_1(
+                    line.removeprefix('#').lstrip()
+                )
+            elif line.startswith('*'):
+                gemtext.list_item(
+                    line.removeprefix('*').lstrip()
+                )
+            elif line.startswith('>'):
+                gemtext.quote(
+                    line.removeprefix('>').lstrip()
+                )
             elif line.startswith('```'):
                 if not pre:
                     pre = True
 
                     pre_text = ''
-                    pre_alt = line.removesuffix('```').strip() or None
+                    pre_alt = line.removesuffix('```').lstrip() or None
                 else:
                     pre = False
 

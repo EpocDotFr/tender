@@ -41,7 +41,7 @@ class Response:
                 raise ValueError('No prompt received')
 
             return Response(status, prompt=prompt[:-2].decode())
-        if Response.is_success(status):
+        elif Response.is_success(status):
             mime_type = await reader.readuntil(b'\r\n')
 
             if not mime_type:
@@ -66,6 +66,9 @@ class Response:
             return Response(status, error_msg=error_msg[:-2].decode() if error_msg else None)
         else:
             raise ValueError(f'Invalid response status: {status}')
+
+    def is_failure(self) -> bool:
+        return Response.is_permfail(self.status) or Response.is_tempfail(self.status)
 
     @staticmethod
     def is_input(status: int) -> bool:
