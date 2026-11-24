@@ -46,11 +46,11 @@ class Response:
 
             if not mime_type:
                 raise ValueError('No mime type received')
-            
+
             mime_type = mime_type[:-2].decode()
 
             body = (await reader.read()) or b''
-            gemtext = Gemtext.create(body, mime_type) if mime_type.startswith('text/gemini') else None
+            gemtext = Gemtext.create(body.decode(), mime_type) if body and mime_type.startswith('text/gemini') else None
 
             return Response(status, mime_type=mime_type, body=body, gemtext=gemtext)
         elif Response.is_redirect(status):

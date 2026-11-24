@@ -40,16 +40,87 @@ class Gemtext:
         self.lines: List[Union[Text, Link, Heading1, Heading2, Heading3, ListItem, Quote, Preformatted]] = []
         self.lang = lang
 
-    def append(self, line: Union[Text, Link, Heading1, Heading2, Heading3, ListItem, Quote, Preformatted]) -> Gemtext:
-        self.lines.append(line)
+    def text(self, text: str) -> None:
+        self.lines.append(
+            Text(text)
+        )
 
-        return self
+    def link(self, url: str, label: Optional[str] = None) -> None:
+        self.lines.append(
+            Link(url, label)
+        )
+
+    def heading_1(self, text: str) -> None:
+        self.lines.append(
+            Heading1(label)
+        )
+
+    def heading_2(self, text: str) -> None:
+        self.lines.append(
+            Heading2(label)
+        )
+
+    def heading_3(self, text: str) -> None:
+        self.lines.append(
+            Heading3(label)
+        )
+
+    def list_item(self, text: str) -> None:
+        self.lines.append(
+            ListItem(text)
+        )
+
+    def quote(self, text: str) -> None:
+        self.lines.append(
+            Quote(text)
+        )
+
+    def preformatted(self, text: str, alt: Optional[str] = None) -> None:
+        self.lines.append(
+            Preformatted(text, alt)
+        )
 
     @staticmethod
-    def create(body: bytes, mime_type: str) -> Optional[Gemtext]:
-        if not body:
-            return None
+    def create(body: str, mime_type: str) -> Optional[Gemtext]:
+        lang = None
 
-        gemtext = Gemtext()
+        raw_lang = mime_type.replace(' ', '').removeprefix('text/gemini;').strip()
+
+        if raw_lang.startswith('lang='):
+            lang = raw_lang.replace('lang=', '').split(',')
+
+        gemtext = Gemtext(lang)
+
+        pre = False
+        pre_text = ''
+        pre_alt = None
+
+        for line in body.splitlines():
+            if line.startswith('=>'):
+                pass # TODO
+            elif line.startswith('###'):
+                pass # TODO
+            elif line.startswith('##'):
+                pass # TODO
+            elif line.startswith('#'):
+                pass # TODO
+            elif line.startswith('* '):
+                pass # TODO
+            elif line.startswith('> '):
+                pass # TODO
+            elif line.startswith('```'):
+                if not pre:
+                    pre = True
+
+                    pre_text = ''
+                    pre_alt = line.removesuffix('```').strip()
+                else:
+                    pre = False
+
+                    gemtext.preformatted(pre_text, pre_alt)
+            elif pre:
+                pre_text += f'{line}\r\n'
+            else:
+                gemtext.text(line)
 
         return gemtext
