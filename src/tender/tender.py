@@ -30,7 +30,12 @@ async def request(url: str) -> Response:
     elif url.scheme != 'gemini':
         raise ValueError(f'Invalid scheme: {url.scheme or "(none)"}')
 
-    reader, writer = await asyncio.open_connection(url.hostname, url.port or 1965, ssl=ssl_context)
+    reader, writer = await asyncio.open_connection(
+        url.hostname,
+        url.port or 1965,
+        ssl=ssl_context,
+        server_hostname=url.hostname
+    )
 
     logger.debug(url)
 
