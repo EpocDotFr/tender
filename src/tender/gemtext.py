@@ -87,7 +87,7 @@ class Gemtext:
         raw_lang = mime_type.replace(' ', '').removeprefix('text/gemini;').strip()
 
         if raw_lang.startswith('lang='):
-            lang = raw_lang.replace('lang=', '').split(',')
+            lang = raw_lang.removeprefix('lang=').split(',')
 
         gemtext = Gemtext(lang)
 
@@ -113,7 +113,7 @@ class Gemtext:
                     pre = True
 
                     pre_text = ''
-                    pre_alt = line.removesuffix('```').strip()
+                    pre_alt = line.removesuffix('```').strip() or None
                 else:
                     pre = False
 
