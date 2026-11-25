@@ -105,7 +105,7 @@ Requires pip >= 25.1.
 
 ### Releasing the package
 
-  1. `__version__` in `src/wayfarer/__init__.py` must be updated beforehand. It should adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
+  1. `__version__` in `src/tender/__init__.py` must be updated beforehand. It should adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   2. Create an associated Git tag (must exactly match the aforementioned version)
   3. `rm -rf dist/ && python -m build`
   4. `twine upload dist/*`
