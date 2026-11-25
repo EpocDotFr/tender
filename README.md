@@ -4,7 +4,7 @@ A [Gemini](https://geminiprotocol.net/) (the protocol) low-level client, impleme
 
 ![Python versions](https://img.shields.io/pypi/pyversions/gemini-tender.svg) ![Version](https://img.shields.io/pypi/v/gemini-tender.svg) ![License](https://img.shields.io/pypi/l/gemini-tender.svg)
 
-[PyPI](https://pypi.org/project/tender/) - [Documentation](https://github.com/EpocDotFr/tender?tab=readme-ov-file#usage) - [Source code](https://github.com/EpocDotFr/tender) - [Issue tracker](https://github.com/EpocDotFr/tender/issues) - [Changelog](https://github.com/EpocDotFr/tender/releases)
+[PyPI](https://pypi.org/project/gemini-tender/) - [Documentation](https://github.com/EpocDotFr/tender?tab=readme-ov-file#usage) - [Source code](https://github.com/EpocDotFr/tender) - [Issue tracker](https://github.com/EpocDotFr/tender/issues) - [Changelog](https://github.com/EpocDotFr/tender/releases)
 
 > [!TIP]
 > See also: [Harbor](https://github.com/EpocDotFr/harbor), the accompanying server; and [Wayfarer](https://github.com/EpocDotFr/wayfarer), the accompanying [TUI](https://en.wikipedia.org/wiki/Text-based_user_interface) client.
@@ -23,15 +23,62 @@ pipenv install gemini-tender
 
 ## Usage
 
+### Setting up the SSL context
+
+The Gemini protocol *requires* usage of TLS >= 1.2. The first thing you thus have to do is to set up an SSL context.
+
+A bare-minimum, Gemini-compliant context can be created and used right away (according you already have an asyncio
+context):
+
+```python
+import tender
+
+context = tender.create_default_ssl_context()
+```
+
+However, this context will *not* - by default - validate any certificate and will accept *any* certificate.
+
 > [!NOTE]
 > TODO
+
+### Sending requests
+
+As simple as:
+
+```python
+import tender
+
+context = ...
+
+response = await tender.request('gemini://geminiprotocol.net/', context)
+```
+
+A `tender.Response` instance will be returned.
+
+### Inspecting the response
+
+Several attributes and methods in `tender.Response` are available:
+
+  - `is_failure()` determines whether the status is a permanent or temporary failure
+  - `is_input()`, `is_success()`, `is_redirect()`, `is_tempfail()`, `is_permfail()` and `is_auth()` determine the status group
+  - `status` is the status as an integer
+  - For input responses:
+    - `prompt` is the prompt as a string
+  - For success responses:
+    - `body` is the raw response body as bytes
+    - `mime_type` is a `tender.MimeType` instance
+    - `gemtext` may be a `tender.Gemtext` instance if the returned MIME type is `text/gemini`, or `None` instead
+  - For redirect responses:
+    - `uri` is the redirect URI as a string
+  - For temporary failure, permanent failure and auth responses:
+    - `error_msg` is the error message as a string or `None` if there is none
 
 ## Development
 
 ### Getting source code and installing the package
 
   1. Clone the repository
-  2. From the root directory, run for example: `pipenv install --editable path/to/the/package-root-dir"`
+  2. Run for example: `pipenv install --editable path/to/the/package-root-dir`
 
 ### Releasing the package
 
