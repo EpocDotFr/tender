@@ -64,7 +64,7 @@ class Response:
 
                 gemtext = Gemtext.create(
                     body_decoded,
-                    mime_type.parameters.get('lang', '').split(',') if 'lang' in mime_type.parameters else None
+                    mime_type.parameters.get('lang', '') if 'lang' in mime_type.parameters else None
                 )
 
             return Response(status, mime_type=mime_type, body=body, gemtext=gemtext)
