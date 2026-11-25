@@ -99,7 +99,7 @@ Several attributes and methods in `tender.Response` are available:
 ### Getting source code and installing the package
 
   1. Clone the repository
-  2. Run for example: `pipenv install --editable path/to/the/package-root-dir`
+  2. From the package's root: `pip install --editable . --group dev`
 
 ### Releasing the package
 
