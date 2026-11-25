@@ -103,10 +103,8 @@ Several attributes and methods in `tender.Response` are available:
 
 ### Releasing the package
 
-> [!NOTE]
-> TODO
-
-`__version__` in `src/tender/__init__.py` must be updated beforehand. It should adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-An associated GitHub release must be created following the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
-format.
+  1. `__version__` in `src/tender/__init__.py` must be updated beforehand. It should adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
+  2. `python -m build`
+  3. `twine upload dist/*`
+  4. Create an associated Git tag (must exactly match the aforementioned version)
+  5. An associated GitHub release must be created following the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format
