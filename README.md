@@ -98,13 +98,15 @@ Several attributes and methods in `tender.Response` are available:
 
 ### Getting source code and installing the package
 
+Requires pip >= 25.1.
+
   1. Clone the repository
   2. From the package's root: `pip install --editable . --group dev`
 
 ### Releasing the package
 
-  1. `__version__` in `src/tender/__init__.py` must be updated beforehand. It should adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
-  2. `rm -rf dist/ && python -m build`
-  3. `twine upload dist/*`
-  4. Create an associated Git tag (must exactly match the aforementioned version)
+  1. `__version__` in `src/wayfarer/__init__.py` must be updated beforehand. It should adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
+  2. Create an associated Git tag (must exactly match the aforementioned version)
+  3. `rm -rf dist/ && python -m build`
+  4. `twine upload dist/*`
   5. An associated GitHub release must be created following the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format
