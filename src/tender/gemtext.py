@@ -84,17 +84,7 @@ class Gemtext:
         )
 
     @staticmethod
-    def create(body: str, mime_type: str) -> Gemtext:
-        lang = None
-
-        mime_params = mime_type.replace(' ', '').removeprefix('text/gemini;').strip()
-
-        if mime_params:
-            lang_param = next((mime_param for mime_param in mime_params.split(';') if mime_param.startswith('lang=')), None)
-
-            if lang_param:
-                lang = lang_param.removeprefix('lang=').split(',')
-
+    def create(body: str, lang: Optional[Union[str, List[str]]] = None) -> Gemtext:
         gemtext = Gemtext(lang)
 
         pre = False

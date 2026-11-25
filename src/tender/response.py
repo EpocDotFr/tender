@@ -1,6 +1,11 @@
+from typing import Optional, NamedTuple, Dict
 from tender.gemtext import Gemtext
-from typing import Optional
 import asyncio
+
+
+class MimeType(NamedTuple):
+    media_type: str
+    parameters: Dict[str, str]
 
 
 class Response:
@@ -8,7 +13,7 @@ class Response:
         self,
         status: int,
         body: Optional[bytes] = None,
-        mime_type: Optional[str] = None,
+        mime_type: Optional[MimeType] = None,
         gemtext: Optional[Gemtext] = None,
         prompt: Optional[str] = None,
         uri: Optional[str] = None,
@@ -45,15 +50,26 @@ class Response:
 
             return Response(status, prompt=prompt[:-2].decode())
         elif Response.is_success(status):
-            mime_type = await reader.readuntil(b'\r\n')
+            try:
+                mime_type = await reader.readuntil(b'\r\n')
+            except asyncio.IncompleteReadError:
+                mime_type = None
 
-            if not mime_type:
-                raise ValueError('No mime type received')
-
-            mime_type = mime_type[:-2].decode()
+            mime_type = Response.parse_mime_type(mime_type[:-2] if mime_type else None)
 
             body = (await reader.read()) or b''
-            gemtext = Gemtext.create(body.decode(), mime_type) if body and mime_type.startswith('text/gemini') else None
+            gemtext = None
+
+            if body and mime_type.media_type == 'text/gemini':
+                try:
+                    body_decoded = body.decode(mime_type.parameters.get('charset', 'utf-8'), errors='replace')
+                except LookupError:
+                    body_decoded = body.decode('utf-8', errors='replace')
+
+                gemtext = Gemtext.create(
+                    body_decoded,
+                    mime_type.parameters.get('lang', '').split(',') if 'lang' in mime_type.parameters else None
+                )
 
             return Response(status, mime_type=mime_type, body=body, gemtext=gemtext)
         elif Response.is_redirect(status):
@@ -99,3 +115,25 @@ class Response:
     @staticmethod
     def is_auth(status: int) -> bool:
         return 60 <= status <= 69
+
+    @staticmethod
+    def parse_mime_type(mime_type: Optional[bytes]) -> MimeType:
+        if not mime_type:
+            return MimeType('text/gemini', {'charset': 'utf-8'})
+
+        mime_type = mime_type.lower().decode(errors='replace').replace(' ', '')
+
+        if ';' in mime_type:
+            mime_type, raw_params = mime_type.split(';', maxsplit=1)
+
+            param_items = [
+                raw_param.split('=', 1) for raw_param in raw_params.split(';') if '=' in raw_param
+            ]
+
+            params = {
+                param[0]: param[1] for param in param_items
+            }
+
+            return MimeType(mime_type, params)
+        else:
+            return MimeType(mime_type, {})
