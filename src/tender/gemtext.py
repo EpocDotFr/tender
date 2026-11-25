@@ -41,7 +41,7 @@ class Preformatted(NamedTuple):
 class Gemtext:
     def __init__(self, lang: Optional[Union[str, List[str]]] = None):
         self.lines: List[Union[Text, Link, Heading1, Heading2, Heading3, ListItem, Quote, Preformatted]] = []
-        self.lang = lang
+        self.lang: Optional[List[str]] = lang if isinstance(lang, list) else [lang] if lang else None
 
     def text(self, text: str) -> None:
         self.lines.append(
