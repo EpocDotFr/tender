@@ -24,3 +24,7 @@ Documentation = "https://github.com/EpocDotFr/tender?tab=readme-ov-file#usage"
 Repository = "https://github.com/EpocDotFr/tender"
 Issues = "https://github.com/EpocDotFr/tender/issues"
 Changelog = "https://github.com/EpocDotFr/tender/releases"
+
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
