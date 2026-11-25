@@ -1,22 +1,28 @@
 from tender.response import Response
 from urllib.parse import urlsplit
-from typing import Optional
 import logging
 import asyncio
 import ssl
 
-default_ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-default_ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
-default_ssl_context.load_default_certs(ssl.Purpose.SERVER_AUTH)
-default_ssl_context.check_hostname = False
-default_ssl_context.verify_mode = ssl.CERT_NONE
+
+def create_default_context() -> ssl.SSLContext:
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
+    ssl_context.load_default_certs(ssl.Purpose.SERVER_AUTH)
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+
+    return ssl_context
+
+
+default_ssl_context = create_default_context()
 
 MAX_URI_LENGTH = 1024
 
 logger = logging.getLogger('tender')
 
 
-async def request(url: str, timeout: float | int = 5, ssl_context: Optional[ssl.SSLContext] = None) -> Response:
+async def request(url: str, timeout: float | int = 5, ssl_context: ssl.SSLContext = default_ssl_context) -> Response:
     if len(url.encode()) > MAX_URI_LENGTH:
         raise ValueError(f'URI too long (must be max {MAX_URI_LENGTH} bytes)')
 
@@ -25,7 +31,7 @@ async def request(url: str, timeout: float | int = 5, ssl_context: Optional[ssl.
     except ValueError:
         raise ValueError('Invalid URI') from None
 
-    if parsed_url.hostname:
+    if not parsed_url.hostname:
         raise ValueError('URI without hostname')
     if parsed_url.username or parsed_url.password:
         raise ValueError('URI with userinfo')
@@ -38,7 +44,7 @@ async def request(url: str, timeout: float | int = 5, ssl_context: Optional[ssl.
         reader, writer = await asyncio.open_connection(
             parsed_url.hostname,
             parsed_url.port or 1965,
-            ssl=ssl_context or default_ssl_context,
+            ssl=ssl_context,
             server_hostname=parsed_url.hostname
         )
 
