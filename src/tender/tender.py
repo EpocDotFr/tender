@@ -6,7 +6,7 @@ import ssl
 
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
-ssl_context.load_default_certs(ssl.Purpose.CLIENT_AUTH)
+ssl_context.load_default_certs(ssl.Purpose.SERVER_AUTH)
 ssl_context.check_hostname = False
 ssl_context.verify_mode = ssl.CERT_NONE
 
