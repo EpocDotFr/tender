@@ -24,10 +24,13 @@ class Response:
 
     @staticmethod
     async def create(reader: asyncio.StreamReader) -> Response:
-        status = (await reader.readuntil(b' '))[:-1]
+        try:
+            status = (await reader.readuntil(b' '))[:-1]
+        except asyncio.IncompleteReadError:
+            raise ValueError('Incomplete status') from None
 
         try:
-            if len(status) > 2:
+            if len(status) != 2:
                 raise ValueError
 
             status = int(status.decode())
@@ -35,10 +38,10 @@ class Response:
             raise ValueError(f'Malformed status: {status}') from None
 
         if Response.is_input(status):
-            prompt = await reader.readuntil(b'\r\n')
-
-            if not prompt:
-                raise ValueError('No prompt received')
+            try:
+                prompt = await reader.readuntil(b'\r\n')
+            except asyncio.IncompleteReadError:
+                raise ValueError('No prompt received') from None
 
             return Response(status, prompt=prompt[:-2].decode())
         elif Response.is_success(status):
@@ -54,14 +57,17 @@ class Response:
 
             return Response(status, mime_type=mime_type, body=body, gemtext=gemtext)
         elif Response.is_redirect(status):
-            uri = await reader.readuntil(b'\r\n')
-
-            if not uri:
-                raise ValueError('No uri received')
+            try:
+                uri = await reader.readuntil(b'\r\n')
+            except asyncio.IncompleteReadError:
+                raise ValueError('No uri received') from None
 
             return Response(status, uri=uri[:-2].decode())
         elif Response.is_tempfail(status) or Response.is_permfail(status) or Response.is_auth(status):
-            error_msg = await reader.readuntil(b'\r\n')
+            try:
+                error_msg = await reader.readuntil(b'\r\n')
+            except asyncio.IncompleteReadError:
+                error_msg = None
 
             return Response(status, error_msg=error_msg[:-2].decode() if error_msg else None)
         else:
