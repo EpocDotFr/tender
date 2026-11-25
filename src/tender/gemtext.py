@@ -1,7 +1,7 @@
 from typing import NamedTuple, Optional, List, Union
 import re
 
-text_regex = re.compile(r'=>\s+(?P<url>\S+)(?:\s+(?P<label>.+))?')
+text_regex = re.compile(r'=>\s*(?P<url>\S+)(?:\s+(?P<label>.+))?')
 
 
 class Text(NamedTuple):
@@ -84,13 +84,16 @@ class Gemtext:
         )
 
     @staticmethod
-    def create(body: str, mime_type: str) -> Optional[Gemtext]:
+    def create(body: str, mime_type: str) -> Gemtext:
         lang = None
 
-        raw_lang = mime_type.replace(' ', '').removeprefix('text/gemini;').strip()
+        mime_params = mime_type.replace(' ', '').removeprefix('text/gemini;').strip()
 
-        if raw_lang.startswith('lang='):
-            lang = raw_lang.removeprefix('lang=').split(',')
+        if mime_params:
+            lang_param = next((mime_param for mime_param in mime_params.split(';') if mime_param.startswith('lang=')), None)
+
+            if lang_param:
+                lang = lang_param.removeprefix('lang=').split(',')
 
         gemtext = Gemtext(lang)
 
@@ -99,7 +102,19 @@ class Gemtext:
         pre_alt = None
 
         for line in body.splitlines():
-            if line.startswith('=>'):
+            if line.startswith('```'):
+                if not pre:
+                    pre = True
+
+                    pre_text = ''
+                    pre_alt = line.removeprefix('```').lstrip() or None
+                else:
+                    pre = False
+
+                    gemtext.preformatted(pre_text, pre_alt)
+            elif pre:
+                pre_text += f'{line}\r\n'
+            elif line.startswith('=>'):
                 match = text_regex.fullmatch(line)
 
                 if match:
@@ -107,7 +122,7 @@ class Gemtext:
 
                     gemtext.link(match.get('url'), match.get('label')) # type: ignore[assignment]
                 else:
-                    raise ValueError(f'Malformed link line: {line}')
+                    gemtext.text(line)
             elif line.startswith('###'):
                 gemtext.heading_3(
                     line.removeprefix('###').lstrip()
@@ -120,7 +135,7 @@ class Gemtext:
                 gemtext.heading_1(
                     line.removeprefix('#').lstrip()
                 )
-            elif line.startswith('*'):
+            elif line.startswith('* '):
                 gemtext.list_item(
                     line.removeprefix('*').lstrip()
                 )
@@ -128,19 +143,10 @@ class Gemtext:
                 gemtext.quote(
                     line.removeprefix('>').lstrip()
                 )
-            elif line.startswith('```'):
-                if not pre:
-                    pre = True
-
-                    pre_text = ''
-                    pre_alt = line.removesuffix('```').lstrip() or None
-                else:
-                    pre = False
-
-                    gemtext.preformatted(pre_text, pre_alt)
-            elif pre:
-                pre_text += f'{line}\r\n'
             else:
                 gemtext.text(line)
+
+        if pre:
+            gemtext.preformatted(pre_text, pre_alt)
 
         return gemtext
