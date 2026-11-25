@@ -27,8 +27,7 @@ pipenv install gemini-tender
 
 The Gemini protocol *requires* usage of TLS >= 1.2. The first thing you thus have to do is to set up an SSL context.
 
-A bare-minimum, Gemini-compliant context can be created and used right away (according you already have an asyncio
-context):
+A bare-minimum, Gemini-compliant context can be created and used right away:
 
 ```python
 import tender
@@ -43,7 +42,7 @@ However, this context will *not* - by default - validate any certificate and wil
 
 ### Sending requests
 
-As simple as:
+As simple as (all examples assume you already have an asyncio context):
 
 ```python
 import tender
