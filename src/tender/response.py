@@ -1,11 +1,7 @@
-from typing import Optional, NamedTuple, Dict
+from tender.support import MimeType
 from tender.gemtext import Gemtext
+from typing import Optional
 import asyncio
-
-
-class MimeType(NamedTuple):
-    media_type: str
-    parameters: Dict[str, str]
 
 
 class Response:
