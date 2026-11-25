@@ -65,12 +65,34 @@ Several attributes and methods in `tender.Response` are available:
     - `prompt` is the prompt as a string
   - For success responses:
     - `body` is the raw response body as bytes
-    - `mime_type` is a `tender.MimeType` instance
-    - `gemtext` may be a `tender.Gemtext` instance if the returned MIME type is `text/gemini`, or `None` instead
+    - `mime_type` is a `tender.MimeType` instance (read below for more info)
+    - `gemtext` may be a `tender.Gemtext` instance if the returned MIME type is `text/gemini`, or `None` instead. Read below for more info
   - For redirect responses:
     - `uri` is the redirect URI as a string
   - For temporary failure, permanent failure and auth responses:
     - `error_msg` is the error message as a string or `None` if there is none
+
+#### Inspecting the response's MIME type
+
+`tender.MimeType` is a named tuple, with the following attributes:
+
+  - `media_type` - a string containing the actual MIME type (e.g. `text/gemini`)
+  - `parameters` - a dictionary containing the associated parameters (e.g. `{'charset': 'utf-8', 'lang': 'fr'}`)
+
+#### Reading the parsed gemtext
+
+`tender.Gemtext` exposes the following attributes:
+
+  - `lines` - a list of parsed lines constituting the gemtext document. This list may contain instances of the following named tuples and associated attributes:
+    - `tender.Text` (`text` - string)
+    - `tender.Link` (`url` - string, `label` - string or `None`)
+    - `tender.Heading1` (`text` - string)
+    - `tender.Heading2` (`text` - string)
+    - `tender.Heading3` (`text` - string)
+    - `tender.ListItem` (`text` - string)
+    - `tender.Quote` (`text` - string)
+    - `tender.Preformatted` (`text` - string, `alt` - string or `None`)
+  - `lang` - a list of language codes, parsed from the response's MIME type, or `None` if there's none
 
 ## Development
 
