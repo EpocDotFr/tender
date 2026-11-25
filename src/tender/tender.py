@@ -19,22 +19,22 @@ async def request(url: str) -> Response:
     # TODO Check length with MAX_URI_LENGTH
 
     try:
-        url = urlsplit(url)
+        parsed_url = urlsplit(url)
     except ValueError:
         raise ValueError('Invalid URI') from None
 
-    if url.username or url.password:
+    if parsed_url.username or parsed_url.password:
         raise ValueError('URI with userinfo')
-    elif url.fragment:
+    elif parsed_url.fragment:
         raise ValueError('URI with fragment')
-    elif url.scheme != 'gemini':
-        raise ValueError(f'Invalid scheme: {url.scheme or "(none)"}')
+    elif parsed_url.scheme != 'gemini':
+        raise ValueError(f'Invalid scheme: {parsed_url.scheme or "(none)"}')
 
     reader, writer = await asyncio.open_connection(
-        url.hostname,
-        url.port or 1965,
+        parsed_url.hostname,
+        parsed_url.port or 1965,
         ssl=ssl_context,
-        server_hostname=url.hostname
+        server_hostname=parsed_url.hostname
     )
 
     logger.debug(url)
