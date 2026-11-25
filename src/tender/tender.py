@@ -1,18 +1,15 @@
-from tender.support import create_default_ssl_context
 from tender.response import Response
 from urllib.parse import urlsplit
 import logging
 import asyncio
 import ssl
 
-default_ssl_context = create_default_ssl_context()
-
 MAX_URI_LENGTH = 1024
 
 logger = logging.getLogger('tender')
 
 
-async def request(url: str, timeout: float | int = 5, ssl_context: ssl.SSLContext = default_ssl_context) -> Response:
+async def request(url: str, ssl_context: ssl.SSLContext, timeout: float | int = 5) -> Response:
     if len(url.encode()) > MAX_URI_LENGTH:
         raise ValueError(f'URI too long (must be max {MAX_URI_LENGTH} bytes)')
 
