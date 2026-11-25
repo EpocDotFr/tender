@@ -48,7 +48,7 @@ class Response:
             except asyncio.IncompleteReadError:
                 raise ValueError('No prompt received') from None
 
-            return Response(status, prompt=prompt[:-2].decode())
+            return Response(status, prompt=prompt[:-2].decode(errors='replace'))
         elif Response.is_success(status):
             try:
                 mime_type = await reader.readuntil(b'\r\n')
@@ -78,14 +78,14 @@ class Response:
             except asyncio.IncompleteReadError:
                 raise ValueError('No uri received') from None
 
-            return Response(status, uri=uri[:-2].decode())
+            return Response(status, uri=uri[:-2].decode(errors='replace'))
         elif Response.is_tempfail(status) or Response.is_permfail(status) or Response.is_auth(status):
             try:
                 error_msg = await reader.readuntil(b'\r\n')
-            except asyncio.IncompleteReadError:
-                error_msg = None
+            except asyncio.IncompleteReadError as e:
+                error_msg = e.partial
 
-            return Response(status, error_msg=error_msg[:-2].decode() if error_msg else None)
+            return Response(status, error_msg=error_msg.removesuffix(b'\r\n').decode(errors='replace') if error_msg else None)
         else:
             raise ValueError(f'Invalid response status: {status}')
 

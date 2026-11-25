@@ -15,7 +15,7 @@ MAX_URI_LENGTH = 1024
 logger = logging.getLogger('tender')
 
 
-async def request(url: str) -> Response:
+async def request(url: str, timeout: float | int = 5) -> Response:
     # TODO Check length with MAX_URI_LENGTH
 
     try:
@@ -30,25 +30,26 @@ async def request(url: str) -> Response:
     elif parsed_url.scheme != 'gemini':
         raise ValueError(f'Invalid scheme: {parsed_url.scheme or "(none)"}')
 
-    reader, writer = await asyncio.open_connection(
-        parsed_url.hostname,
-        parsed_url.port or 1965,
-        ssl=ssl_context,
-        server_hostname=parsed_url.hostname
-    )
+    async with asyncio.timeout(timeout):
+        reader, writer = await asyncio.open_connection(
+            parsed_url.hostname,
+            parsed_url.port or 1965,
+            ssl=ssl_context,
+            server_hostname=parsed_url.hostname
+        )
 
-    logger.debug(url)
-
-    writer.write(f'{url}\r\n'.encode())
-
-    await writer.drain()
-
-    try:
-        return await Response.create(reader)
-    finally:
-        writer.close()
+        logger.debug(url)
 
         try:
-            await writer.wait_closed()
-        except Exception:
-            pass
+            writer.write(f'{url}\r\n'.encode())
+
+            await writer.drain()
+
+            return await Response.create(reader)
+        finally:
+            writer.close()
+
+            try:
+                await writer.wait_closed()
+            except Exception:
+                pass
