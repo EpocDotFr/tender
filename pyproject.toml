@@ -29,5 +29,10 @@ Changelog = "https://github.com/EpocDotFr/tender/releases"
 requires = ["setuptools >= 77.0.3"]
 build-backend = "setuptools.build_meta"
 
+[dependency-groups]
+dev = [
+    "twine~=7.0.0",
+]
+
 [tool.setuptools.dynamic]
 version = {attr = "tender.__version__"}
