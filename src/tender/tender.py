@@ -16,7 +16,8 @@ logger = logging.getLogger('tender')
 
 
 async def request(url: str, timeout: float | int = 5) -> Response:
-    # TODO Check length with MAX_URI_LENGTH
+    if len(url.encode()) > MAX_URI_LENGTH:
+        raise ValueError(f'URI too long (must be max {MAX_URI_LENGTH} bytes)')
 
     try:
         parsed_url = urlsplit(url)
