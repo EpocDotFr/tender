@@ -35,7 +35,10 @@ import tender
 context = tender.create_default_ssl_context()
 ```
 
-However, this context will *not* - by default - validate any certificate and will accept *any* certificate.
+This functions creates a preconfigured [ssl.SSLContext](https://docs.python.org/3.14/library/ssl.html#ssl.SSLContext) instance. However,
+this context will *not* - by default - validate any certificate and will accept *any* certificate.
+
+#### Using custom certificate
 
 > [!NOTE]
 > TODO
@@ -53,6 +56,18 @@ response = await tender.request('gemini://geminiprotocol.net/', context)
 ```
 
 A `tender.Response` instance will be returned.
+
+#### Custom timeout
+
+There's a 5 seconds timeout by default for the whole request process. You can change that with the third `timeout` argument:
+
+```python
+import tender
+
+context = ...
+
+response = await tender.request('gemini://geminiprotocol.net/', context, timeout=10) # 10 seconds
+```
 
 ### Inspecting the response
 
