@@ -1,5 +1,9 @@
+from urllib.parse import uses_relative, uses_netloc
 from typing import NamedTuple, Dict
 import ssl
+
+uses_relative.append('gemini')
+uses_netloc.append('gemini')
 
 
 def create_default_ssl_context() -> ssl.SSLContext:

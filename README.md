@@ -59,7 +59,7 @@ A `tender.Response` instance will be returned.
 
 #### Custom timeout
 
-There's a 5 seconds timeout by default for the whole request process. You can change that with the third `timeout` argument:
+There's a 5-second timeout by default for the whole request process. You can change that with the third `timeout` argument:
 
 ```python
 import tender
@@ -108,6 +108,10 @@ Several attributes and methods in `tender.Response` are available:
     - `tender.Quote` (`text` - string)
     - `tender.Preformatted` (`text` - string, `alt` - string or `None`)
   - `lang` - a list of language codes, parsed from the response's MIME type, or `None` if there's none
+
+> [!NOTE]
+> Tender automatically registers the `gemini` scheme in `urllib.parse` upon importing. That will make functions like
+> `urljoin()` work as expected.
 
 ## Development
 
