@@ -35,7 +35,7 @@ import tender
 context = tender.create_default_ssl_context()
 ```
 
-This functions creates a preconfigured [ssl.SSLContext](https://docs.python.org/3.14/library/ssl.html#ssl.SSLContext) instance. However,
+This method creates a preconfigured [ssl.SSLContext](https://docs.python.org/3.14/library/ssl.html#ssl.SSLContext) instance. However,
 this context will *not* - by default - validate any certificate and will accept *any* certificate.
 
 #### Using custom certificate
