@@ -42,7 +42,7 @@ async def request(url: str, ssl_context: ssl.SSLContext, timeout: float | int = 
 
             await writer.drain()
 
-            return await Response.create(reader, writer)
+            return await Response.create(reader)
         finally:
             writer.close()
 

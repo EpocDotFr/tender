@@ -13,8 +13,7 @@ class Response:
         gemtext: Optional[Gemtext] = None,
         prompt: Optional[str] = None,
         uri: Optional[str] = None,
-        error_msg: Optional[str] = None,
-        peer_cert: Optional[bytes] = None
+        error_msg: Optional[str] = None
     ):
         self.status = status
         self.body = body
@@ -23,10 +22,9 @@ class Response:
         self.prompt = prompt
         self.uri = uri
         self.error_msg = error_msg
-        self.peer_cert = peer_cert
 
     @staticmethod
-    async def create(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> Response:
+    async def create(reader: asyncio.StreamReader) -> Response:
         try:
             status = (await reader.readuntil(b' '))[:-1]
         except asyncio.IncompleteReadError:
@@ -40,15 +38,13 @@ class Response:
         except ValueError:
             raise ValueError(f'Malformed status: {status}') from None
 
-        peer_cert = writer.get_extra_info('ssl_object').getpeercert(binary_form=True)
-
         if Response.is_input(status):
             try:
                 prompt = await reader.readuntil(b'\r\n')
             except asyncio.IncompleteReadError:
                 raise ValueError('No prompt received') from None
 
-            return Response(status, prompt=prompt[:-2].decode(errors='replace'), peer_cert=peer_cert)
+            return Response(status, prompt=prompt[:-2].decode(errors='replace'))
         elif Response.is_success(status):
             try:
                 mime_type = await reader.readuntil(b'\r\n')
@@ -71,14 +67,14 @@ class Response:
                     mime_type.parameters.get('lang')
                 )
 
-            return Response(status, mime_type=mime_type, body=body, gemtext=gemtext, peer_cert=peer_cert)
+            return Response(status, mime_type=mime_type, body=body, gemtext=gemtext)
         elif Response.is_redirect(status):
             try:
                 uri = await reader.readuntil(b'\r\n')
             except asyncio.IncompleteReadError:
                 raise ValueError('No uri received') from None
 
-            return Response(status, uri=uri[:-2].decode(errors='replace'), peer_cert=peer_cert)
+            return Response(status, uri=uri[:-2].decode(errors='replace'))
         elif Response.is_tempfail(status) or Response.is_permfail(status) or Response.is_auth(status):
             try:
                 error_msg = await reader.readuntil(b'\r\n')
@@ -87,8 +83,7 @@ class Response:
 
             return Response(
                 status,
-                error_msg=error_msg.removesuffix(b'\r\n').decode(errors='replace') if error_msg else None,
-                peer_cert=peer_cert
+                error_msg=error_msg.removesuffix(b'\r\n').decode(errors='replace') if error_msg else None
             )
         else:
             raise ValueError(f'Invalid response status: {status}')
