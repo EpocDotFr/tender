@@ -108,7 +108,7 @@ Several attributes and methods in `tender.Response` are available:
     - `mime_type` is a `tender.MimeType` instance (read below for more info)
     - `gemtext` may be a `tender.Gemtext` instance if the returned MIME type is `text/gemini`, or `None` instead. Read below for more info
   - For redirect responses:
-    - `uri` is the redirect URI as a string
+    - `url` is the redirect URL as a string
   - For temporary failure, permanent failure and auth responses:
     - `error_msg` is the error message as a string or `None` if there is none
 

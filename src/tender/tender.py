@@ -4,26 +4,26 @@ import logging
 import asyncio
 import ssl
 
-MAX_URI_LENGTH = 1024
+MAX_URL_LENGTH = 1024
 
 logger = logging.getLogger('tender')
 
 
 async def request(url: str, ssl_context: ssl.SSLContext, timeout: float | int = 5) -> Response:
-    if len(url.encode()) > MAX_URI_LENGTH:
-        raise ValueError(f'URI too long (must be max {MAX_URI_LENGTH} bytes)')
+    if len(url.encode()) > MAX_URL_LENGTH:
+        raise ValueError(f'URL too long (must be max {MAX_URL_LENGTH} bytes)')
 
     try:
         parsed_url = urlsplit(url)
     except ValueError:
-        raise ValueError('Invalid URI') from None
+        raise ValueError('Invalid URL') from None
 
     if not parsed_url.hostname:
-        raise ValueError('URI without hostname')
+        raise ValueError('URL without hostname')
     if parsed_url.username or parsed_url.password:
-        raise ValueError('URI with userinfo')
+        raise ValueError('URL with userinfo')
     elif parsed_url.fragment:
-        raise ValueError('URI with fragment')
+        raise ValueError('URL with fragment')
     elif parsed_url.scheme != 'gemini':
         raise ValueError(f'Invalid scheme: {parsed_url.scheme or "(none)"}')
 

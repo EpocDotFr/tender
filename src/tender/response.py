@@ -12,7 +12,7 @@ class Response:
         mime_type: Optional[MimeType] = None,
         gemtext: Optional[Gemtext] = None,
         prompt: Optional[str] = None,
-        uri: Optional[str] = None,
+        url: Optional[str] = None,
         error_msg: Optional[str] = None
     ):
         self.status = status
@@ -20,7 +20,7 @@ class Response:
         self.mime_type = mime_type
         self.gemtext = gemtext
         self.prompt = prompt
-        self.uri = uri
+        self.url = url
         self.error_msg = error_msg
 
     @staticmethod
@@ -70,11 +70,11 @@ class Response:
             return Response(status, mime_type=mime_type, body=body, gemtext=gemtext)
         elif Response.is_redirect(status):
             try:
-                uri = await reader.readuntil(b'\r\n')
+                url = await reader.readuntil(b'\r\n')
             except asyncio.IncompleteReadError:
-                raise ValueError('No uri received') from None
+                raise ValueError('No url received') from None
 
-            return Response(status, uri=uri[:-2].decode(errors='replace'))
+            return Response(status, url=url[:-2].decode(errors='replace'))
         elif Response.is_tempfail(status) or Response.is_permfail(status) or Response.is_auth(status):
             try:
                 error_msg = await reader.readuntil(b'\r\n')
