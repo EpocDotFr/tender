@@ -38,10 +38,18 @@ context = tender.create_default_ssl_context()
 This method creates a preconfigured [ssl.SSLContext](https://docs.python.org/3.14/library/ssl.html#ssl.SSLContext) instance. However,
 this context will *not* - by default - validate any certificate and will accept *any* certificate.
 
-#### Using custom certificate
+#### Using a client certificate
 
-> [!NOTE]
-> TODO
+Create a default SSL context, and set your certificates using Python's methods:
+
+```python
+import tender
+
+context = tender.create_default_ssl_context()
+context.load_cert_chain('cert.pem', 'key.pem')
+```
+
+Note that you must of course use one context per identity.
 
 ### Sending requests
 
@@ -52,7 +60,14 @@ import tender
 
 context = ...
 
-response = await tender.request('gemini://geminiprotocol.net/', context)
+try:
+    response = await tender.request('gemini://geminiprotocol.net/', context)
+except ValueError:
+    # On invalid URL or malformed response
+    ...
+except OSError:
+    # All other errors
+    ...
 ```
 
 A `tender.Response` instance will be returned.
@@ -66,7 +81,17 @@ import tender
 
 context = ...
 
-response = await tender.request('gemini://geminiprotocol.net/', context, timeout=10) # 10 seconds
+try:
+    response = await tender.request('gemini://geminiprotocol.net/', context, timeout=10) # 10 seconds
+except TimeoutError: # Note it's an OSError subclass
+    # Timeout reached
+    ...
+except ValueError:
+    # On invalid URL or malformed response
+    ...
+except OSError:
+    # All other errors
+    ...
 ```
 
 ### Inspecting the response
