@@ -142,7 +142,7 @@ Several attributes and methods in `tender.Response` are available:
 
 ### Getting source code and installing the package
 
-Requires pip >= 25.1.
+Requires pip >= 25.1 in a virtualenv.
 
   1. Clone the repository
   2. From the package's root: `pip install --editable . --group dev`
