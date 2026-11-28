@@ -27,7 +27,7 @@ class Response:
     async def create(reader: asyncio.StreamReader) -> Response:
         try:
             status = (await reader.readuntil(b' '))[:-1]
-        except asyncio.IncompleteReadError:
+        except (asyncio.IncompleteReadError, asyncio.LimitOverrunError):
             raise ValueError('Incomplete status') from None
 
         try:
@@ -41,7 +41,7 @@ class Response:
         if Response.is_input(status):
             try:
                 prompt = await reader.readuntil(b'\r\n')
-            except asyncio.IncompleteReadError:
+            except (asyncio.IncompleteReadError, asyncio.LimitOverrunError):
                 raise ValueError('No prompt received') from None
 
             return Response(status, prompt=prompt[:-2].decode(errors='replace'))
@@ -50,6 +50,8 @@ class Response:
                 mime_type = await reader.readuntil(b'\r\n')
             except asyncio.IncompleteReadError:
                 mime_type = None
+            except asyncio.LimitOverrunError:
+                raise ValueError('MIME too long') from None
 
             mime_type = Response.parse_mime_type(mime_type[:-2] if mime_type else None)
 
@@ -71,7 +73,7 @@ class Response:
         elif Response.is_redirect(status):
             try:
                 url = await reader.readuntil(b'\r\n')
-            except asyncio.IncompleteReadError:
+            except (asyncio.IncompleteReadError, asyncio.LimitOverrunError):
                 raise ValueError('No url received') from None
 
             return Response(status, url=url[:-2].decode(errors='replace'))
@@ -80,6 +82,8 @@ class Response:
                 error_msg = await reader.readuntil(b'\r\n')
             except asyncio.IncompleteReadError as e:
                 error_msg = e.partial
+            except asyncio.LimitOverrunError:
+                raise ValueError('Error message too long') from None
 
             return Response(
                 status,

@@ -35,12 +35,13 @@ import tender
 context = tender.create_default_ssl_context()
 ```
 
-This method creates a preconfigured [ssl.SSLContext](https://docs.python.org/3.14/library/ssl.html#ssl.SSLContext) instance. However,
-this context will *not* - by default - validate any certificate and will accept *any* certificate.
+This method creates a preconfigured [ssl.SSLContext](https://docs.python.org/3.14/library/ssl.html#ssl.SSLContext)
+instance. This context will *not* validate any certificate and will accept *any* certificate since most Gemini
+servers use self-signed certificates.
 
 #### Using a client certificate
 
-Create a default SSL context, and set your certificates using Python's methods:
+Create a default SSL context, and set your certificates using Python's [load_cert_chain()](https://docs.python.org/3.14/library/ssl.html#ssl.SSLContext.load_cert_chain):
 
 ```python
 import tender
